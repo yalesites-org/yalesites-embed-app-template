@@ -89,8 +89,11 @@ npm run dev
 # Build for production
 npm run build
 
-# Preview production build
+# Preview production build (rebuilds first)
 npm run preview
+
+# Preview existing build (fast, no rebuild)
+npm run preview:fast
 
 # Lint code
 npm run lint
