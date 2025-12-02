@@ -19,19 +19,7 @@ html {
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.main-content h1 {
-  font-size: 2.5rem;
-  line-height: 1.15;
-  margin: 0;
-}
-
-.main-description {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #334155;
+  gap: 1rem;
 }
 
 .embed-panel {
@@ -72,9 +60,5 @@ html {
 @media (max-width: 768px) {
   .container {
     padding: 1.5rem;
-  }
-
-  .main-content h1 {
-    font-size: 2rem;
   }
 }

@@ -23,6 +23,13 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+function readConfig() {
+  if (!fs.existsSync(configPath)) {
+    throw new Error('external.config.json not found. Please run from project root.');
+  }
+  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+}
+
 function question(prompt) {
   return new Promise(resolve => rl.question(prompt, answer => resolve(answer.trim())));
 }
@@ -104,18 +111,7 @@ function copyAsset(sourceRoot, destinationRoot, assetPath) {
   console.log(`📦 Copied asset: ${assetPath}`);
 }
 
-function updateConfig(entryHtml, iframeTitle, initialHeight) {
-  if (!fs.existsSync(configPath)) {
-    throw new Error('external.config.json not found. Please run from project root.');
-  }
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  config.entryHtml = entryHtml;
-  if (iframeTitle) {
-    config.iframeTitle = iframeTitle;
-  }
-  if (initialHeight) {
-    config.initialHeight = initialHeight;
-  }
+function updateConfig(config) {
   fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
   console.log('🛠  Updated external.config.json');
 }
@@ -123,6 +119,8 @@ function updateConfig(entryHtml, iframeTitle, initialHeight) {
 async function main() {
   try {
     console.log('🧩 Legacy HTML Integration\n');
+    const existingConfig = readConfig();
+
     let sourcePath = await question('Path to HTML file to integrate: ');
     if (!sourcePath) {
       throw new Error('No HTML file path provided.');
@@ -157,16 +155,38 @@ async function main() {
       console.log('\nℹ️  No relative assets detected in HTML.');
     }
 
-    const titleAnswer = await question(`Iframe title (default: ${inferredTitle || 'Legacy experience'}): `);
-    const iframeTitle = titleAnswer || inferredTitle || 'Legacy experience';
+    const currentTitle =
+      typeof existingConfig.iframeTitle === 'string' && existingConfig.iframeTitle.trim().length > 0
+        ? existingConfig.iframeTitle.trim()
+        : '{{APP_TITLE}}';
 
-    const heightAnswer = await question(`Initial iframe height in pixels (default: keep current value): `);
+    const htmlTitleNote =
+      inferredTitle && inferredTitle !== currentTitle ? ` (detected in HTML: ${inferredTitle})` : '';
+
+    const titleAnswer = await question(`Iframe title (press enter to keep ${currentTitle})${htmlTitleNote}: `);
+    const iframeTitle = titleAnswer || currentTitle || inferredTitle || 'Legacy experience';
+
+    const currentHeight =
+      typeof existingConfig.initialHeight === 'number' && Number.isFinite(existingConfig.initialHeight)
+        ? existingConfig.initialHeight
+        : 600;
+
+    const heightAnswer = await question(`Initial iframe height in pixels (press enter to keep ${currentHeight}): `);
     const parsedHeight = heightAnswer ? Number.parseInt(heightAnswer, 10) : null;
     if (heightAnswer && Number.isNaN(parsedHeight)) {
       console.warn('⚠️  Invalid height input, keeping existing value.');
     }
 
-    updateConfig(destFileName, iframeTitle, parsedHeight && parsedHeight > 0 ? parsedHeight : null);
+    const updatedConfig = {
+      ...existingConfig,
+      entryHtml: destFileName,
+      iframeTitle,
+    };
+    if (parsedHeight && parsedHeight > 0) {
+      updatedConfig.initialHeight = parsedHeight;
+    }
+
+    updateConfig(updatedConfig);
 
     console.log('\n🎉 Integration complete!');
     console.log('   • Run npm run dev to preview the embedded experience.');

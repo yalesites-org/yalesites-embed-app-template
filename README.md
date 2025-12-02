@@ -109,7 +109,7 @@ npm run integrate
 
 ### Quick Start
 1. Collect the provided HTML bundle (plus relative assets) from your partner.
-2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/Retirement Estimatorv2.html`).
+2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/legacy-tool.html`).
 3. Accept or override the destination filename, iframe title, and starting height.
 4. Preview locally with `npm run dev` to confirm the iframe loads and auto-resizes.
 
@@ -119,17 +119,19 @@ npm run integrate
 - Updates `external.config.json`, which the React wrapper consumes at build time.
 - Leaves absolute or CDN-linked resources untouched so they keep loading from the network.
 
+After integration the React app renders only the imported HTML bundle—no extra headers or chrome—so the legacy experience appears exactly as supplied.
+
 ### `external.config.json` Reference
 ```json
 {
   "entryHtml": "index.html",
-  "iframeTitle": "Retirement Estimator",
+  "iframeTitle": "{{APP_TITLE}}",
   "initialHeight": 600,
   "allowList": ["allow-scripts", "allow-same-origin"]
 }
 ```
 - `entryHtml`: File in `public/external/` that should be rendered inside the iframe.
-- `iframeTitle`: Visible heading and iframe title attribute for accessibility.
+- `iframeTitle`: Title attribute applied to the iframe for accessibility. (`npm run setup` swaps `{{APP_TITLE}}` for your real title.)
 - `initialHeight`: Starting height in pixels before dynamic resizing kicks in.
 - `allowList`: Sandbox tokens passed to the iframe (tighten if the legacy code permits).
 

@@ -72,23 +72,25 @@ const LegacyEmbed = (): JSX.Element => {
     };
   }, []);
 
+  const showStatus = isUsingPlaceholder || status !== 'ready';
+
   return (
-    <section className="embed-panel" aria-label="Legacy content wrapper">
-      <div className="embed-callout" role="status" aria-live="polite">
-        {isUsingPlaceholder ? (
-          <p>
-            Replace the placeholder HTML by running <code>npm run integrate</code> and selecting a legacy asset.
-          </p>
-        ) : status === 'loading' ? (
-          <p>Loading legacy experience…</p>
-        ) : status === 'ready' ? (
-          <p>Legacy experience loaded.</p>
-        ) : (
-          <p>
-            Unable to load the legacy content. Confirm the file referenced in <code>external.config.json</code> exists.
-          </p>
-        )}
-      </div>
+    <section className="embed-panel" aria-label={externalConfig.iframeTitle}>
+      {showStatus && (
+        <div className="embed-callout" role="status" aria-live="polite">
+          {isUsingPlaceholder ? (
+            <p>
+              Replace the placeholder HTML by running <code>npm run integrate</code> and selecting a legacy asset.
+            </p>
+          ) : status === 'loading' ? (
+            <p>Loading embedded content…</p>
+          ) : (
+            <p>
+              Unable to load the embedded content. Confirm the file referenced in <code>external.config.json</code> exists.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="embed-frame-wrapper">
         <iframe
