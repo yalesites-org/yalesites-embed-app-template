@@ -1,0 +1,9 @@
+{
+  "entryHtml": "placeholder.html",
+  "iframeTitle": "{{APP_TITLE}} legacy embed",
+  "initialHeight": 600,
+  "allowList": [
+    "allow-scripts",
+    "allow-same-origin"
+  ]
+}

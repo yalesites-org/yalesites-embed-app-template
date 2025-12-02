@@ -100,7 +100,40 @@ npm run lint
 
 # Deploy to GitHub Pages
 npm run deploy
+
+# Integrate legacy HTML bundle
+npm run integrate
 ```
+
+## 🧩 Legacy HTML Integration
+
+### Quick Start
+1. Collect the provided HTML bundle (plus relative assets) from your partner.
+2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/Retirement Estimatorv2.html`).
+3. Accept or override the destination filename, iframe title, and starting height.
+4. Preview locally with `npm run dev` to confirm the iframe loads and auto-resizes.
+
+### What the Script Handles
+- Clears `public/external/` so stale assets do not linger between imports.
+- Copies the HTML file along with any relative `src`/`href` assets it references.
+- Updates `external.config.json`, which the React wrapper consumes at build time.
+- Leaves absolute or CDN-linked resources untouched so they keep loading from the network.
+
+### `external.config.json` Reference
+```json
+{
+  "entryHtml": "index.html",
+  "iframeTitle": "Retirement Estimator",
+  "initialHeight": 600,
+  "allowList": ["allow-scripts", "allow-same-origin"]
+}
+```
+- `entryHtml`: File in `public/external/` that should be rendered inside the iframe.
+- `iframeTitle`: Visible heading and iframe title attribute for accessibility.
+- `initialHeight`: Starting height in pixels before dynamic resizing kicks in.
+- `allowList`: Sandbox tokens passed to the iframe (tighten if the legacy code permits).
+
+Manual tweaks to the JSON are respected without re-running the script. The React wrapper at `src/components/LegacyEmbed.tsx` listens for content size changes and updates the iframe height automatically. If you receive a new revision of the legacy HTML, rerun `npm run integrate` to replace the bundle and keep the config fresh.
 
 ## 🎯 YaleSites Integration
 

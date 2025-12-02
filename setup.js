@@ -26,7 +26,8 @@ const FILES_TO_UPDATE = [
   'vite.config.ts',
   'index.html',
   'src/main.tsx',
-  'src/App.tsx'
+  'src/App.tsx',
+  'external.config.json'
 ];
 
 const rl = readline.createInterface({
@@ -113,6 +114,7 @@ function displaySummary(values) {
   console.log('   1. npm install');
   console.log('   2. npm run dev');
   console.log('   3. npm run deploy');
+  console.log('   4. npm run integrate  # when adding legacy HTML bundles');
   
   console.log(`\n🌐 Your app will be available at:`);
   console.log(`   https://${values['{{GITHUB_ORG}}']}.github.io/${values['{{APP_NAME}}']}/`);
