@@ -1,74 +1,88 @@
 import { useEffect, useRef, useState } from 'react';
 import externalConfig, { isUsingPlaceholder } from '../config/externalConfig';
 
-const MIN_HEIGHT = 320;
-
-const sandboxValue = externalConfig.sandboxAllowList.join(' ');
-const iframeSrc = `${import.meta.env.BASE_URL}external/${externalConfig.entryHtml}`;
+// Use absolute URL from homepage in production, relative URL in development
+const baseUrl = import.meta.env.VITE_APP_HOMEPAGE
+  ? `${import.meta.env.VITE_APP_HOMEPAGE}/`
+  : import.meta.env.BASE_URL;
+const htmlUrl = `${baseUrl}external/${externalConfig.entryHtml}`;
 
 type EmbedStatus = 'loading' | 'ready' | 'error';
 
 const LegacyEmbed = (): JSX.Element => {
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<EmbedStatus>('loading');
-  const [iframeHeight, setIframeHeight] = useState<number>(
-    Math.max(externalConfig.initialHeight, MIN_HEIGHT),
-  );
 
   useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) {
+    if (isUsingPlaceholder) {
+      setStatus('ready');
       return;
     }
 
-    let observer: ResizeObserver | null = null;
     let cancelled = false;
 
-    const updateHeight = () => {
-      if (!iframeRef.current) return;
+    const fetchAndInjectHTML = async () => {
       try {
-        const contentDoc = iframeRef.current.contentDocument;
-        if (!contentDoc) return;
+        const response = await fetch(htmlUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch HTML: ${response.status}`);
+        }
 
-        const bodyHeight = contentDoc.body?.scrollHeight ?? 0;
-        const docHeight = contentDoc.documentElement?.scrollHeight ?? 0;
-        const computedHeight = Math.max(bodyHeight, docHeight, MIN_HEIGHT);
-        setIframeHeight(previous => (Math.abs(previous - computedHeight) > 1 ? computedHeight : previous));
+        const htmlText = await response.text();
+
+        if (cancelled) return;
+
+        // Parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        if (!containerRef.current) return;
+
+        // Extract and inject styles
+        const styles = doc.querySelectorAll('style');
+        styles.forEach(style => {
+          const newStyle = document.createElement('style');
+          newStyle.textContent = style.textContent;
+          containerRef.current?.appendChild(newStyle);
+        });
+
+        // Extract and inject body content
+        const bodyContent = doc.body.innerHTML;
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = bodyContent;
+        containerRef.current?.appendChild(contentDiv);
+
+        // Extract and execute scripts
+        const scripts = doc.querySelectorAll('script');
+        scripts.forEach(script => {
+          const newScript = document.createElement('script');
+          if (script.src) {
+            newScript.src = script.src;
+          } else {
+            newScript.textContent = script.textContent;
+          }
+          // Copy other attributes
+          Array.from(script.attributes).forEach(attr => {
+            if (attr.name !== 'src') {
+              newScript.setAttribute(attr.name, attr.value);
+            }
+          });
+          containerRef.current?.appendChild(newScript);
+        });
+
+        setStatus('ready');
       } catch (error) {
-        console.warn('Unable to read iframe height:', error);
+        if (!cancelled) {
+          console.error('Error loading external HTML:', error);
+          setStatus('error');
+        }
       }
     };
 
-    const handleLoad = () => {
-      if (cancelled) return;
-      setStatus('ready');
-      updateHeight();
-      try {
-        const contentDoc = iframe.contentDocument;
-        const target = contentDoc?.body ?? contentDoc?.documentElement;
-        if (!target || typeof ResizeObserver === 'undefined') return;
-        observer = new ResizeObserver(() => updateHeight());
-        observer.observe(target);
-      } catch (error) {
-        console.warn('ResizeObserver setup failed:', error);
-      }
-    };
-
-    const handleError = () => {
-      if (cancelled) return;
-      setStatus('error');
-    };
-
-    iframe.addEventListener('load', handleLoad);
-    iframe.addEventListener('error', handleError);
+    fetchAndInjectHTML();
 
     return () => {
       cancelled = true;
-      iframe.removeEventListener('load', handleLoad);
-      iframe.removeEventListener('error', handleError);
-      if (observer) {
-        observer.disconnect();
-      }
     };
   }, []);
 
@@ -92,15 +106,7 @@ const LegacyEmbed = (): JSX.Element => {
         </div>
       )}
 
-      <div className="embed-frame-wrapper">
-        <iframe
-          ref={iframeRef}
-          title={externalConfig.iframeTitle}
-          src={iframeSrc}
-          sandbox={sandboxValue}
-          style={{ width: '100%', border: 0, height: `${iframeHeight}px` }}
-        />
-      </div>
+      <div ref={containerRef} className="embed-content-wrapper" />
     </section>
   );
 };
