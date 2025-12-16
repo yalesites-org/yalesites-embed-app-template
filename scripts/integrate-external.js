@@ -10,7 +10,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import readline from 'readline';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -171,16 +171,60 @@ async function main() {
         ? existingConfig.initialHeight
         : 600;
 
-    const heightAnswer = await question(`Initial iframe height in pixels (press enter to keep ${currentHeight}): `);
+    const heightAnswer = await question(`Initial height in pixels (press enter to keep ${currentHeight}): `);
     const parsedHeight = heightAnswer ? Number.parseInt(heightAnswer, 10) : null;
     if (heightAnswer && Number.isNaN(parsedHeight)) {
       console.warn('⚠️  Invalid height input, keeping existing value.');
+    }
+
+    const currentUseIframe =
+      typeof existingConfig.useIframe === 'boolean' ? existingConfig.useIframe : true;
+
+    console.log('\n🔒 Security Configuration');
+    console.log('   Iframe mode (recommended): Isolates content in a sandboxed iframe for better security.');
+    console.log('   Direct injection mode: Injects HTML directly with CSP headers. Only use for trusted content.');
+    const useIframeAnswer = await question(`Use iframe for security isolation? (Y/n, default: ${currentUseIframe ? 'Y' : 'n'}): `);
+    const useIframe = useIframeAnswer.toLowerCase() === 'n' ? false : true;
+
+    let allowList = existingConfig.allowList || ['allow-scripts', 'allow-same-origin'];
+    let cspDirectives = existingConfig.cspDirectives || {
+      'script-src': "'self'",
+      'style-src': "'self' 'unsafe-inline'",
+      'img-src': "'self' data:",
+      'default-src': "'self'",
+    };
+
+    if (useIframe) {
+      const allowListAnswer = await question(
+        `Sandbox tokens (comma-separated, press enter to keep: ${allowList.join(', ')}): `
+      );
+      if (allowListAnswer.trim()) {
+        allowList = allowListAnswer.split(',').map(token => token.trim());
+      }
+    } else {
+      console.log('⚠️  WARNING: Direct injection mode has XSS risks. Only use for content you control.');
+      const editCspAnswer = await question('Use default CSP directives? (Y/n): ');
+      if (editCspAnswer.toLowerCase() === 'n') {
+        console.log('Current CSP directives:');
+        console.log(JSON.stringify(cspDirectives, null, 2));
+        const cspAnswer = await question('Enter new CSP as JSON (or press enter to keep current): ');
+        if (cspAnswer.trim()) {
+          try {
+            cspDirectives = JSON.parse(cspAnswer);
+          } catch {
+            console.warn('⚠️  Invalid JSON, keeping existing CSP directives.');
+          }
+        }
+      }
     }
 
     const updatedConfig = {
       ...existingConfig,
       entryHtml: destFileName,
       iframeTitle,
+      useIframe,
+      allowList,
+      cspDirectives,
     };
     if (parsedHeight && parsedHeight > 0) {
       updatedConfig.initialHeight = parsedHeight;
@@ -199,6 +243,6 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

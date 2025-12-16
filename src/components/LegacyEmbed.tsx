@@ -11,7 +11,9 @@ type EmbedStatus = 'loading' | 'ready' | 'error';
 
 const LegacyEmbed = (): JSX.Element => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [status, setStatus] = useState<EmbedStatus>('loading');
+  const iframeHeight = externalConfig.initialHeight || 600;
 
   useEffect(() => {
     if (isUsingPlaceholder) {
@@ -19,10 +21,32 @@ const LegacyEmbed = (): JSX.Element => {
       return;
     }
 
+    // If using iframe mode, let the iframe load event handle status
+    if (externalConfig.useIframe) {
+      return;
+    }
+
+    // Direct injection mode - inject CSP and load HTML
     let cancelled = false;
+
+    const injectCSP = () => {
+      if (!externalConfig.cspDirectives) return;
+
+      const cspContent = Object.entries(externalConfig.cspDirectives)
+        .map(([directive, value]) => `${directive} ${value}`)
+        .join('; ');
+
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Security-Policy';
+      meta.content = cspContent;
+      document.head.appendChild(meta);
+    };
 
     const fetchAndInjectHTML = async () => {
       try {
+        // Inject CSP before loading any external content
+        injectCSP();
+
         const response = await fetch(htmlUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch HTML: ${response.status}`);
@@ -86,7 +110,18 @@ const LegacyEmbed = (): JSX.Element => {
     };
   }, []);
 
-  const showStatus = isUsingPlaceholder || status !== 'ready';
+  const handleIframeLoad = () => {
+    setStatus('ready');
+  };
+
+  const handleIframeError = () => {
+    setStatus('error');
+  };
+
+  const showStatus = isUsingPlaceholder || (externalConfig.useIframe ? status !== 'ready' : status !== 'ready');
+
+  // Build sandbox attribute from allowList
+  const sandboxValue = externalConfig.allowList ? externalConfig.allowList.join(' ') : undefined;
 
   return (
     <section className="embed-panel" aria-label={externalConfig.iframeTitle}>
@@ -106,7 +141,23 @@ const LegacyEmbed = (): JSX.Element => {
         </div>
       )}
 
-      <div ref={containerRef} className="embed-content-wrapper" />
+      {externalConfig.useIframe && !isUsingPlaceholder ? (
+        <iframe
+          ref={iframeRef}
+          src={htmlUrl}
+          title={externalConfig.iframeTitle}
+          sandbox={sandboxValue}
+          style={{
+            width: '100%',
+            height: `${iframeHeight}px`,
+            border: 'none',
+          }}
+          onLoad={handleIframeLoad}
+          onError={handleIframeError}
+        />
+      ) : (
+        <div ref={containerRef} className="embed-content-wrapper" />
+      )}
     </section>
   );
 };

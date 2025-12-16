@@ -4,7 +4,9 @@ export interface ExternalConfig {
   entryHtml: string;
   iframeTitle: string;
   initialHeight: number;
-  sandboxAllowList: string[];
+  useIframe: boolean;
+  allowList: string[];
+  cspDirectives?: Record<string, string>;
 }
 
 const DEFAULT_HEIGHT = 600;
@@ -49,11 +51,27 @@ function normalizeSandbox(value: unknown): string[] {
   return DEFAULT_SANDBOX;
 }
 
+function normalizeUseIframe(value: unknown): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  return true; // Default to iframe mode for security
+}
+
+function normalizeCSPDirectives(value: unknown): Record<string, string> | undefined {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, string>;
+  }
+  return undefined;
+}
+
 const externalConfig: ExternalConfig = {
   entryHtml: normalizeEntryHtml((rawConfig as { entryHtml?: unknown }).entryHtml),
   iframeTitle: normalizeIframeTitle((rawConfig as { iframeTitle?: unknown }).iframeTitle),
   initialHeight: normalizeHeight((rawConfig as { initialHeight?: unknown }).initialHeight),
-  sandboxAllowList: normalizeSandbox((rawConfig as { allowList?: unknown }).allowList),
+  useIframe: normalizeUseIframe((rawConfig as { useIframe?: unknown }).useIframe),
+  allowList: normalizeSandbox((rawConfig as { allowList?: unknown }).allowList),
+  cspDirectives: normalizeCSPDirectives((rawConfig as { cspDirectives?: unknown }).cspDirectives),
 };
 
 export const isUsingPlaceholder = externalConfig.entryHtml === 'placeholder.html';

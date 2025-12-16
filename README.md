@@ -110,13 +110,29 @@ npm run integrate
 ### Quick Start
 1. Collect the provided HTML bundle (plus relative assets) from your partner.
 2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/legacy-tool.html`).
-3. Accept or override the destination filename, iframe title, and starting height.
-4. Preview locally with `npm run dev` to confirm the iframe loads and auto-resizes.
+3. Accept or override the destination filename, content title, and starting height.
+4. Choose rendering mode: **iframe** (recommended, secure) or **direct injection** (for trusted content only).
+5. Preview locally with `npm run dev` to confirm the content loads properly.
+
+### Rendering Modes
+
+#### Iframe Mode (Recommended - Default)
+- **Security**: Isolates legacy content in a sandboxed iframe
+- **Use Case**: Any third-party or untrusted HTML
+- **Features**: Auto-resizing, configurable sandbox tokens
+- **Configuration**: Uses `allowList` for iframe sandbox attributes
+
+#### Direct Injection Mode
+- **Security**: ⚠️ **Use only for content you control**. Potential XSS risks.
+- **Use Case**: Trusted internal tools where iframe limitations are problematic
+- **Features**: CSP headers for additional protection
+- **Configuration**: Uses `cspDirectives` for Content Security Policy
 
 ### What the Script Handles
 - Clears `public/external/` so stale assets do not linger between imports.
 - Copies the HTML file along with any relative `src`/`href` assets it references.
 - Updates `external.config.json`, which the React wrapper consumes at build time.
+- Prompts for security configuration based on chosen rendering mode.
 - Leaves absolute or CDN-linked resources untouched so they keep loading from the network.
 
 After integration the React app renders only the imported HTML bundle—no extra headers or chrome—so the legacy experience appears exactly as supplied.
@@ -125,17 +141,37 @@ After integration the React app renders only the imported HTML bundle—no extra
 ```json
 {
   "entryHtml": "index.html",
-  "iframeTitle": "{{APP_TITLE}}",
+  "iframeTitle": "Legacy Experience",
   "initialHeight": 600,
-  "allowList": ["allow-scripts", "allow-same-origin"]
+  "useIframe": true,
+  "allowList": ["allow-scripts", "allow-same-origin"],
+  "cspDirectives": {
+    "script-src": "'self'",
+    "style-src": "'self' 'unsafe-inline'",
+    "img-src": "'self' data:",
+    "default-src": "'self'"
+  }
 }
 ```
-- `entryHtml`: File in `public/external/` that should be rendered inside the iframe.
-- `iframeTitle`: Title attribute applied to the iframe for accessibility. (`npm run setup` swaps `{{APP_TITLE}}` for your real title.)
-- `initialHeight`: Starting height in pixels before dynamic resizing kicks in.
-- `allowList`: Sandbox tokens passed to the iframe (tighten if the legacy code permits).
 
-Manual tweaks to the JSON are respected without re-running the script. The React wrapper at `src/components/LegacyEmbed.tsx` listens for content size changes and updates the iframe height automatically. If you receive a new revision of the legacy HTML, rerun `npm run integrate` to replace the bundle and keep the config fresh.
+#### Configuration Options
+- **`entryHtml`**: File in `public/external/` to be rendered
+- **`iframeTitle`**: Accessibility label for the embedded content
+- **`initialHeight`**: Starting height in pixels (used for both modes)
+- **`useIframe`**: `true` for iframe mode (default), `false` for direct injection
+- **`allowList`**: *(Iframe mode only)* Sandbox tokens for the iframe (e.g., `allow-scripts`, `allow-same-origin`, `allow-forms`)
+- **`cspDirectives`**: *(Direct injection mode only)* Content Security Policy directives
+
+#### Common Sandbox Tokens
+- `allow-scripts`: Enable JavaScript execution
+- `allow-same-origin`: Allow access to same-origin resources
+- `allow-forms`: Enable form submission
+- `allow-popups`: Allow popups
+- `allow-modals`: Allow modal dialogs
+
+⚠️ **Security Note**: More permissive sandbox tokens or direct injection mode increase security risks. Only use when necessary and with trusted content.
+
+Manual tweaks to the JSON are respected without re-running the script. The React wrapper at `src/components/LegacyEmbed.tsx` handles both rendering modes. If you receive a new revision of the legacy HTML, rerun `npm run integrate` to replace the bundle and keep the config fresh.
 
 ## 🎯 YaleSites Integration
 
