@@ -67,6 +67,8 @@ const LegacyEmbed = (): JSX.Element => {
         if (!containerRef.current) return;
 
         // Extract and inject styles
+        // WARNING: CSS injection assumes trusted content only (use iframe mode for untrusted content)
+        // Malicious CSS could use @import or background-image URLs for data exfiltration
         const styles = doc.querySelectorAll('style');
         styles.forEach(style => {
           const newStyle = document.createElement('style');

@@ -10,7 +10,7 @@ export interface ExternalConfig {
 }
 
 const DEFAULT_HEIGHT = 600;
-const DEFAULT_SANDBOX = ['allow-scripts', 'allow-same-origin'];
+const DEFAULT_ALLOW_LIST = ['allow-scripts', 'allow-same-origin'];
 
 function normalizeEntryHtml(value: unknown): string {
   if (typeof value === 'string' && value.trim().length > 0) {
@@ -48,7 +48,7 @@ function normalizeSandbox(value: unknown): string[] {
       return tokens;
     }
   }
-  return DEFAULT_SANDBOX;
+  return DEFAULT_ALLOW_LIST;
 }
 
 function normalizeUseIframe(value: unknown): boolean {

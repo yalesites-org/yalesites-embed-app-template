@@ -166,7 +166,17 @@ async function main() {
     // Note: {{APP_TITLE}} is a placeholder that should be replaced during npm run setup
     // If still present, we'll replace it with the inferred title or 'Legacy experience'
     const titleAnswer = await question(`Iframe title (press enter to keep ${currentTitle})${htmlTitleNote}: `);
-    const iframeTitle = titleAnswer || inferredTitle || (currentTitle !== '{{APP_TITLE}}' ? currentTitle : null) || 'Legacy experience';
+
+    let iframeTitle;
+    if (titleAnswer) {
+      iframeTitle = titleAnswer;
+    } else if (inferredTitle) {
+      iframeTitle = inferredTitle;
+    } else if (currentTitle !== '{{APP_TITLE}}') {
+      iframeTitle = currentTitle;
+    } else {
+      iframeTitle = 'Legacy experience';
+    }
 
     const currentHeight =
       typeof existingConfig.initialHeight === 'number' && Number.isFinite(existingConfig.initialHeight)
@@ -190,7 +200,7 @@ async function main() {
     console.log('   Iframe mode (recommended): Isolates content in a sandboxed iframe for better security.');
     console.log('   Direct injection mode: Injects HTML directly with CSP headers. Only use for trusted content.');
     const useIframeAnswer = await question(`Use iframe for security isolation? (Y/n, default: ${currentUseIframe ? 'Y' : 'n'}): `);
-    const useIframe = useIframeAnswer.toLowerCase() !== 'n';
+    const useIframe = useIframeAnswer.trim() === '' ? currentUseIframe : useIframeAnswer.toLowerCase() !== 'n';
 
     let allowList = existingConfig.allowList || ['allow-scripts', 'allow-same-origin'];
     let cspDirectives = existingConfig.cspDirectives || {
