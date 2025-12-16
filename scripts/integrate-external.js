@@ -227,8 +227,8 @@ async function main() {
         if (cspAnswer.trim()) {
           try {
             cspDirectives = JSON.parse(cspAnswer);
-          } catch {
-            console.warn('⚠️  Invalid JSON, keeping existing CSP directives.');
+          } catch (err) {
+            console.warn(`⚠️  Invalid JSON: ${err.message}, keeping existing CSP directives.`);
           }
         }
       }
