@@ -155,6 +155,28 @@ async function main() {
       console.log('\nℹ️  No relative assets detected in HTML.');
     }
 
+    // Replace App.tsx with LegacyEmbed wrapper
+    console.log('\n🔄 Setting up legacy HTML wrapper...');
+    const appTsxPath = path.join(projectRoot, 'src', 'App.tsx');
+    const legacyAppContent = `import './App.css';
+import LegacyEmbed from './components/LegacyEmbed';
+import externalConfig from './config/externalConfig';
+
+function App(): JSX.Element {
+  return (
+    <div className="container">
+      <main className="main-content" aria-label={externalConfig.iframeTitle}>
+        <LegacyEmbed />
+      </main>
+    </div>
+  );
+}
+
+export default App;
+`;
+    fs.writeFileSync(appTsxPath, legacyAppContent, 'utf8');
+    console.log('✅ Replaced App.tsx with legacy HTML wrapper');
+
     const currentTitle =
       typeof existingConfig.iframeTitle === 'string' && existingConfig.iframeTitle.trim().length > 0
         ? existingConfig.iframeTitle.trim()
@@ -249,6 +271,7 @@ async function main() {
     updateConfig(updatedConfig);
 
     console.log('\n🎉 Integration complete!');
+    console.log('   • Your App.tsx has been replaced with the legacy HTML wrapper.');
     console.log('   • Run npm run dev to preview the embedded experience.');
     console.log('   • Verify interactive features before deploy.');
   } catch (error) {

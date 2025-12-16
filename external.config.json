@@ -1,6 +1,6 @@
 {
   "entryHtml": "placeholder.html",
-  "iframeTitle": "{{APP_TITLE}}",
+  "iframeTitle": "My Test App",
   "initialHeight": 600,
   "useIframe": true,
   "allowList": [

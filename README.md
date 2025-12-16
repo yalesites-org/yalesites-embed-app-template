@@ -11,6 +11,38 @@ A template for creating React applications that can be embedded in YaleSites usi
 5. **Start development**: `npm run dev`
 6. **Deploy**: `npm run deploy`
 
+## 🔀 Usage Workflows
+
+This template supports two distinct workflows depending on your needs:
+
+### Workflow 1: Building a New React App (Default)
+
+**Use this when:** You want to create a new React application from scratch
+
+1. Clone the template and run `npm run setup` to configure placeholders
+2. Customize `src/App.tsx` with your React components
+3. Build your application using React, TypeScript, and Vite
+4. Deploy to GitHub Pages with `npm run deploy`
+
+**What you get:** A working sample React app with an interactive counter button that you can customize and expand.
+
+### Workflow 2: Wrapping Legacy HTML/JavaScript
+
+**Use this when:** You have existing HTML/JavaScript code that you want to embed in YaleSites
+
+1. Clone the template and run `npm run setup` to configure placeholders
+2. Run `npm run integrate` to start the legacy HTML integration workflow
+3. Point the script to your HTML file and configure security settings
+4. The script will:
+   - Replace `src/App.tsx` with a legacy HTML wrapper component
+   - Copy your HTML and assets to `public/external/`
+   - Configure iframe or direct injection rendering mode
+5. Preview with `npm run dev` and deploy with `npm run deploy`
+
+**What you get:** A React wrapper that renders your legacy HTML in either a secure sandboxed iframe (recommended) or via direct injection (for trusted content only).
+
+**Note:** Running `npm run integrate` will **replace your App.tsx**. If you've customized App.tsx for a React app, back it up first or commit your changes before integrating legacy HTML.
+
 ## 📋 Setup Instructions
 
 ### Required Customizations
@@ -107,12 +139,15 @@ npm run integrate
 
 ## 🧩 Legacy HTML Integration
 
+> **Note:** This section applies to **Workflow 2** (Wrapping Legacy HTML). See [Usage Workflows](#-usage-workflows) for an overview.
+
 ### Quick Start
 1. Collect the provided HTML bundle (plus relative assets) from your partner.
 2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/legacy-tool.html`).
-3. Accept or override the destination filename, content title, and starting height.
-4. Choose rendering mode: **iframe** (recommended, secure) or **direct injection** (for trusted content only).
-5. Preview locally with `npm run dev` to confirm the content loads properly.
+3. **Your `src/App.tsx` will be replaced** with the legacy HTML wrapper component.
+4. Accept or override the destination filename, content title, and starting height.
+5. Choose rendering mode: **iframe** (recommended, secure) or **direct injection** (for trusted content only).
+6. Preview locally with `npm run dev` to confirm the content loads properly.
 
 ### Rendering Modes
 
