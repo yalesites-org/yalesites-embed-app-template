@@ -163,6 +163,8 @@ async function main() {
     const htmlTitleNote =
       inferredTitle && inferredTitle !== currentTitle ? ` (detected in HTML: ${inferredTitle})` : '';
 
+    // Note: {{APP_TITLE}} is a placeholder that should be replaced during npm run setup
+    // If still present, we'll replace it with the inferred title or 'Legacy experience'
     const titleAnswer = await question(`Iframe title (press enter to keep ${currentTitle})${htmlTitleNote}: `);
     const iframeTitle = titleAnswer || inferredTitle || (currentTitle !== '{{APP_TITLE}}' ? currentTitle : null) || 'Legacy experience';
 

@@ -7,6 +7,10 @@ const baseUrl = import.meta.env.VITE_APP_HOMEPAGE
   : import.meta.env.BASE_URL;
 const htmlUrl = `${baseUrl}external/${externalConfig.entryHtml}`;
 
+// Safe script attributes that can be copied without XSS risk
+// Excludes event handlers (onerror, onload, etc.) that could execute arbitrary code
+const SAFE_SCRIPT_ATTRS = ['type', 'async', 'defer', 'crossorigin', 'nomodule', 'referrerpolicy'];
+
 type EmbedStatus = 'loading' | 'ready' | 'error';
 
 const LegacyEmbed = (): JSX.Element => {
@@ -77,13 +81,14 @@ const LegacyEmbed = (): JSX.Element => {
         containerRef.current?.appendChild(contentDiv);
 
         // Extract and execute scripts
+        // WARNING: Direct script injection assumes trusted content only (use iframe mode for untrusted content)
         const scripts = doc.querySelectorAll('script');
-        const SAFE_SCRIPT_ATTRS = ['type', 'async', 'defer', 'crossorigin', 'nomodule', 'referrerpolicy'];
         scripts.forEach(script => {
           const newScript = document.createElement('script');
           if (script.src) {
             newScript.src = script.src;
           } else {
+            // Injecting script content directly - only safe for trusted HTML sources
             newScript.textContent = script.textContent;
           }
           // Copy only safe attributes (not onerror, onload, etc.)

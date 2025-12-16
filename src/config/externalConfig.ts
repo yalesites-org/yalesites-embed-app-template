@@ -55,7 +55,7 @@ function normalizeUseIframe(value: unknown): boolean {
   if (typeof value === 'boolean') {
     return value;
   }
-  return true; // Default to iframe mode for security
+  return true; // Default useIframe to true for security (iframe mode)
 }
 
 function normalizeCSPDirectives(value: unknown): Record<string, string> | undefined {
