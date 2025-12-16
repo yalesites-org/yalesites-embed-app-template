@@ -164,7 +164,7 @@ async function main() {
       inferredTitle && inferredTitle !== currentTitle ? ` (detected in HTML: ${inferredTitle})` : '';
 
     const titleAnswer = await question(`Iframe title (press enter to keep ${currentTitle})${htmlTitleNote}: `);
-    const iframeTitle = titleAnswer || currentTitle || inferredTitle || 'Legacy experience';
+    const iframeTitle = titleAnswer || inferredTitle || (currentTitle !== '{{APP_TITLE}}' ? currentTitle : null) || 'Legacy experience';
 
     const currentHeight =
       typeof existingConfig.initialHeight === 'number' && Number.isFinite(existingConfig.initialHeight)
@@ -172,9 +172,13 @@ async function main() {
         : 600;
 
     const heightAnswer = await question(`Initial height in pixels (press enter to keep ${currentHeight}): `);
-    const parsedHeight = heightAnswer ? Number.parseInt(heightAnswer, 10) : null;
-    if (heightAnswer && Number.isNaN(parsedHeight)) {
-      console.warn('⚠️  Invalid height input, keeping existing value.');
+    let parsedHeight = null;
+    if (heightAnswer.trim() !== '') {
+      parsedHeight = Number.parseInt(heightAnswer, 10);
+      if (Number.isNaN(parsedHeight)) {
+        console.warn('⚠️  Invalid height input, keeping existing value.');
+        parsedHeight = null;
+      }
     }
 
     const currentUseIframe =
@@ -184,7 +188,7 @@ async function main() {
     console.log('   Iframe mode (recommended): Isolates content in a sandboxed iframe for better security.');
     console.log('   Direct injection mode: Injects HTML directly with CSP headers. Only use for trusted content.');
     const useIframeAnswer = await question(`Use iframe for security isolation? (Y/n, default: ${currentUseIframe ? 'Y' : 'n'}): `);
-    const useIframe = useIframeAnswer.toLowerCase() === 'n' ? false : true;
+    const useIframe = useIframeAnswer.toLowerCase() !== 'n';
 
     let allowList = existingConfig.allowList || ['allow-scripts', 'allow-same-origin'];
     let cspDirectives = existingConfig.cspDirectives || {

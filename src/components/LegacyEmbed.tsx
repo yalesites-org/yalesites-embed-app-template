@@ -78,6 +78,7 @@ const LegacyEmbed = (): JSX.Element => {
 
         // Extract and execute scripts
         const scripts = doc.querySelectorAll('script');
+        const SAFE_SCRIPT_ATTRS = ['type', 'async', 'defer', 'crossorigin', 'nomodule', 'referrerpolicy'];
         scripts.forEach(script => {
           const newScript = document.createElement('script');
           if (script.src) {
@@ -85,9 +86,9 @@ const LegacyEmbed = (): JSX.Element => {
           } else {
             newScript.textContent = script.textContent;
           }
-          // Copy other attributes
+          // Copy only safe attributes (not onerror, onload, etc.)
           Array.from(script.attributes).forEach(attr => {
-            if (attr.name !== 'src') {
+            if (SAFE_SCRIPT_ATTRS.includes(attr.name.toLowerCase())) {
               newScript.setAttribute(attr.name, attr.value);
             }
           });
@@ -118,7 +119,7 @@ const LegacyEmbed = (): JSX.Element => {
     setStatus('error');
   };
 
-  const showStatus = isUsingPlaceholder || (externalConfig.useIframe ? status !== 'ready' : status !== 'ready');
+  const showStatus = isUsingPlaceholder || status !== 'ready';
 
   // Build sandbox attribute from allowList
   const sandboxValue = externalConfig.allowList ? externalConfig.allowList.join(' ') : undefined;
