@@ -43,6 +43,9 @@ function App(): JSX.Element {
             <li>✅ Proper mount point configuration</li>
             <li>✅ YaleSites embed integration</li>
           </ul>
+          <p style={{ marginTop: '1.5rem', fontSize: '0.95rem', color: '#666' }}>
+            <strong>Note:</strong> If you need to integrate a single HTML page, run <code style={{ padding: '0.1rem 0.4rem', backgroundColor: '#f0f0f0', borderRadius: '3px', fontFamily: 'monospace' }}>npm run integrate</code>
+          </p>
         </div>
       </main>
     </div>
