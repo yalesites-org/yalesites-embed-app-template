@@ -106,7 +106,7 @@ npm run deploy
 
 ### Critical Requirements
 
-This template follows the [YaleSites GitHub Pages Development Guide](./YaleSites-GitHub-Pages-Development-Guide.md) requirements:
+This template follows the [YaleSites GitHub Pages Development Guide](https://github.com/yalesites-org/yalesites-project/blob/develop/web/profiles/custom/yalesites_profile/modules/custom/ys_embed/GITHUB_PAGES_DEVELOPMENT_GUIDE.md) requirements:
 
 - ✅ **Mount Point**: Element ID matches repository name exactly
 - ✅ **Asset Structure**: Builds output `assets/app.js` and `assets/app.css` 
@@ -206,7 +206,7 @@ base: '/your-repo-name/',  // Must match repository name
 
 ## 📚 Additional Resources
 
-- [YaleSites GitHub Pages Development Guide](./YaleSites-GitHub-Pages-Development-Guide.md)
+- [YaleSites GitHub Pages Development Guide](https://github.com/yalesites-org/yalesites-project/blob/develop/web/profiles/custom/yalesites_profile/modules/custom/ys_embed/GITHUB_PAGES_DEVELOPMENT_GUIDE.md)
 - [React Documentation](https://react.dev/)
 - [Vite Documentation](https://vitejs.dev/)
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
