@@ -360,6 +360,7 @@ Since your app is injected into an existing YaleSites page:
 - The host page has its own `<h1>` - your app's top-level heading should typically be `<h2>` or match the heading level appropriate for its position in the page hierarchy
 - The host page has its own skip navigation - you do not need to add one
 - Use `<section aria-label="...">` or `<section aria-labelledby="...">` to create labeled regions within your app if it has distinct content areas
+- **Do not set focus on load.** Your app is one part of a larger page the user is browsing. Never call `.focus()` on mount, never use `autoFocus` attributes, and never scroll the page to your container. Let the user navigate to your app naturally
 
 ### Required Practices
 
