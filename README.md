@@ -212,7 +212,7 @@ Manual tweaks to the JSON are respected without re-running the script. The React
 
 ### Critical Requirements
 
-This template follows the [YaleSites GitHub Pages Development Guide](./YaleSites-GitHub-Pages-Development-Guide.md) requirements:
+This template follows the [YaleSites GitHub Pages Development Guide](https://github.com/yalesites-org/yalesites-project/blob/develop/web/profiles/custom/yalesites_profile/modules/custom/ys_embed/GITHUB_PAGES_DEVELOPMENT_GUIDE.md) requirements:
 
 - ✅ **Mount Point**: Element ID matches repository name exactly
 - ✅ **Asset Structure**: Builds output `assets/app.js` and `assets/app.css` 
@@ -310,12 +310,116 @@ Check `vite.config.ts` base path:
 base: '/your-repo-name/',  // Must match repository name
 ```
 
+## Building with Claude (Vibe Coding)
+
+This template is designed to work with Claude as your AI coding assistant. The included `CLAUDE.md` file contains all the Yale design system rules, accessibility requirements, and embed constraints. When Claude reads it, it will automatically follow these standards as it builds your app.
+
+### Prerequisites
+
+Before starting, make sure you have these installed on your computer:
+- [Node.js](https://nodejs.org/) (version 18 or later)
+- [Git](https://git-scm.com/)
+
+Download or clone this template to a folder on your computer, then open a terminal in that folder and run:
+
+```bash
+npm install
+```
+
+### Option 1: Claude Code in VS Code (Recommended)
+
+This is the easiest path. Claude can read your files, write code, and run commands directly in your editor.
+
+**Setup:**
+1. Install [VS Code](https://code.visualstudio.com/) if you don't have it
+2. Install the [Claude Code extension](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code) from the VS Code marketplace
+3. Open the template folder in VS Code
+4. Open the Claude Code panel in the sidebar
+
+**Build your app:**
+1. Tell Claude what you want: *"I want to build an app that lets people search and filter a list of campus events"*
+2. When Claude asks clarifying questions, answer them - this helps it build something closer to what you need
+3. Claude will write the code, update styles, and handle the template setup for you
+4. Ask Claude to run `npm run dev` so you can preview your app in the browser
+5. Iterate: *"Make the search bar wider"*, *"Add a date filter"*, *"The cards should show the event location"*
+
+**When you're satisfied:**
+1. Ask Claude: *"Run npm run lint and npm run build and fix any issues"*
+2. Ask Claude: *"Review the code for accessibility and security issues"*
+3. Ask Claude to package it: *"Zip up the project for submission, excluding node_modules, dist, and .git"*
+
+### Option 2: Claude Code in the Terminal
+
+Same capabilities as VS Code, but you interact with Claude in your terminal.
+
+**Setup:**
+1. Install Claude Code: `npm install -g @anthropic-ai/claude-code`
+2. Open a terminal and navigate to the template folder
+3. Run `claude` to start a session
+
+**Build your app:**
+1. Tell Claude what you want to build
+2. Claude will read the `CLAUDE.md` automatically and follow the Yale design standards
+3. It can create files, edit code, run builds, and preview your app
+4. Iterate by describing changes you want
+
+**When you're satisfied:**
+1. Tell Claude: *"Run lint and build and fix any issues"*
+2. Tell Claude: *"Review for accessibility and security"*
+3. Tell Claude: *"Zip up the project for submission, excluding node_modules, dist, and .git"*
+
+### Option 3: Claude Desktop App or claude.ai
+
+Claude cannot write files or run commands in this mode, so you will need to create files and run commands yourself. Claude will generate the code for you to copy into your project.
+
+**Setup:**
+1. Open [Claude](https://claude.ai) or the Claude desktop app
+2. Create a new Project
+3. Upload the `CLAUDE.md` file from this template as project knowledge (this tells Claude the Yale design rules)
+
+**Build your app:**
+1. Describe what you want: *"I want to build a single-page React app that does X. I'm using the YaleSites embed app template. Generate the code for src/App.tsx and src/App.css"*
+2. Claude will generate code following the Yale design system
+3. Copy the generated code into the corresponding files in your project
+4. Run `npm run dev` in your terminal to preview
+5. Go back to Claude with follow-up requests: *"Update the component to add a search filter"*
+
+**When you're satisfied:**
+1. Run these commands yourself in the terminal:
+   ```bash
+   npm run setup        # Replace template placeholders if you haven't already
+   npm run lint         # Fix any code issues
+   npm run build        # Verify the build succeeds
+   npm audit            # Check for security vulnerabilities
+   ls dist/assets/      # Confirm app.js and app.css exist
+   ```
+2. Ask Claude to review your code: paste the contents of your `App.tsx` and `App.css` and ask *"Review this for accessibility issues, style scoping problems, and security concerns"*
+3. Package for submission:
+   ```bash
+   zip -r my-app-name.zip . -x "node_modules/*" "dist/*" ".git/*" "*.tsbuildinfo"
+   ```
+
+### Submitting Your App
+
+Once your app is built, tested, and packaged as a zip file, submit it to the YaleSites team. They will:
+1. Create a repository in the `yalesites-org` GitHub organization
+2. Set up GitHub Pages deployment
+3. Configure the embed in YaleSites
+
+Before submitting, verify:
+- [ ] Template placeholders are replaced (`npm run setup` or manually)
+- [ ] `npm run lint` passes with no errors
+- [ ] `npm run build` succeeds
+- [ ] No API keys, passwords, or secrets anywhere in the code
+- [ ] All CSS is scoped to the app container ID
+
 ## 📚 Additional Resources
 
-- [YaleSites GitHub Pages Development Guide](./YaleSites-GitHub-Pages-Development-Guide.md)
+- [YaleSites GitHub Pages Development Guide](https://github.com/yalesites-org/yalesites-project/blob/develop/web/profiles/custom/yalesites_profile/modules/custom/ys_embed/GITHUB_PAGES_DEVELOPMENT_GUIDE.md)
 - [React Documentation](https://react.dev/)
 - [Vite Documentation](https://vitejs.dev/)
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
 
 ## 🤝 Contributing
 
