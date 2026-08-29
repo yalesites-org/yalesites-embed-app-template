@@ -1,11 +1,12 @@
 {
-  "name": "{{APP_NAME}}",
+  "name": "test-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://{{GITHUB_ORG}}.github.io/{{APP_NAME}}",
+  "homepage": "https://yalesites-org.github.io/test-app",
   "scripts": {
     "setup": "node setup.js",
+    "integrate": "node scripts/integrate-external.js",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

@@ -15,13 +15,13 @@ function App(): JSX.Element {
       {/* Main Content */}
       <main className='main-content' aria-labelledby="main-heading">
         <h1 id="main-heading">{'{{APP_TITLE}}'}</h1>
-        
+
         <div className='message-display' role="status" aria-live="polite">
           <p className='message'>{message}</p>
         </div>
 
         <div className='interaction-section'>
-          <button 
+          <button
             type="button"
             className='action-button'
             onClick={handleButtonClick}
@@ -43,6 +43,9 @@ function App(): JSX.Element {
             <li>✅ Proper mount point configuration</li>
             <li>✅ YaleSites embed integration</li>
           </ul>
+          <p style={{ marginTop: '1.5rem', fontSize: '0.95rem', color: '#666' }}>
+            <strong>Note:</strong> If you need to integrate a single HTML page, run <code style={{ padding: '0.1rem 0.4rem', backgroundColor: '#f0f0f0', borderRadius: '3px', fontFamily: 'monospace' }}>npm run integrate</code>
+          </p>
         </div>
       </main>
     </div>

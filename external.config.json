@@ -1,0 +1,16 @@
+{
+  "entryHtml": "placeholder.html",
+  "iframeTitle": "My Test App",
+  "initialHeight": 600,
+  "useIframe": true,
+  "allowList": [
+    "allow-scripts",
+    "allow-same-origin"
+  ],
+  "cspDirectives": {
+    "script-src": "'self'",
+    "style-src": "'self' 'unsafe-inline'",
+    "img-src": "'self' data:",
+    "default-src": "'self'"
+  }
+}

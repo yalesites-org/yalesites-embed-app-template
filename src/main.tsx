@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.tsx'
 
 // CRITICAL: Element ID must exactly match repository name for YaleSites embed
-createRoot(document.getElementById('{{APP_NAME}}')!).render(
+createRoot(document.getElementById('test-app')!).render(
   <StrictMode>
     <App />
   </StrictMode>,

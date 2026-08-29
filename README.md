@@ -11,6 +11,38 @@ A template for creating React applications that can be embedded in YaleSites usi
 5. **Start development**: `npm run dev`
 6. **Deploy**: `npm run deploy`
 
+## 🔀 Usage Workflows
+
+This template supports two distinct workflows depending on your needs:
+
+### Workflow 1: Building a New React App (Default)
+
+**Use this when:** You want to create a new React application from scratch
+
+1. Clone the template and run `npm run setup` to configure placeholders
+2. Customize `src/App.tsx` with your React components
+3. Build your application using React, TypeScript, and Vite
+4. Deploy to GitHub Pages with `npm run deploy`
+
+**What you get:** A working sample React app with an interactive counter button that you can customize and expand.
+
+### Workflow 2: Wrapping Legacy HTML/JavaScript
+
+**Use this when:** You have existing HTML/JavaScript code that you want to embed in YaleSites
+
+1. Clone the template and run `npm run setup` to configure placeholders
+2. Run `npm run integrate` to start the legacy HTML integration workflow
+3. Point the script to your HTML file and configure security settings
+4. The script will:
+   - Replace `src/App.tsx` with a legacy HTML wrapper component
+   - Copy your HTML and assets to `public/external/`
+   - Configure iframe or direct injection rendering mode
+5. Preview with `npm run dev` and deploy with `npm run deploy`
+
+**What you get:** A React wrapper that renders your legacy HTML in either a secure sandboxed iframe (recommended) or via direct injection (for trusted content only).
+
+**Note:** Running `npm run integrate` will **replace your App.tsx**. If you've customized App.tsx for a React app, back it up first or commit your changes before integrating legacy HTML.
+
 ## 📋 Setup Instructions
 
 ### Required Customizations
@@ -100,7 +132,81 @@ npm run lint
 
 # Deploy to GitHub Pages
 npm run deploy
+
+# Integrate legacy HTML bundle
+npm run integrate
 ```
+
+## 🧩 Legacy HTML Integration
+
+> **Note:** This section applies to **Workflow 2** (Wrapping Legacy HTML). See [Usage Workflows](#-usage-workflows) for an overview.
+
+### Quick Start
+1. Collect the provided HTML bundle (plus relative assets) from your partner.
+2. Run `npm run integrate` and point the prompt at the HTML file (e.g., `~/Downloads/legacy-tool.html`).
+3. **Your `src/App.tsx` will be replaced** with the legacy HTML wrapper component.
+4. Accept or override the destination filename, content title, and starting height.
+5. Choose rendering mode: **iframe** (recommended, secure) or **direct injection** (for trusted content only).
+6. Preview locally with `npm run dev` to confirm the content loads properly.
+
+### Rendering Modes
+
+#### Iframe Mode (Recommended - Default)
+- **Security**: Isolates legacy content in a sandboxed iframe
+- **Use Case**: Any third-party or untrusted HTML
+- **Features**: Auto-resizing, configurable sandbox tokens
+- **Configuration**: Uses `allowList` for iframe sandbox attributes
+
+#### Direct Injection Mode
+- **Security**: ⚠️ **Use only for content you control**. Potential XSS risks.
+- **Use Case**: Trusted internal tools where iframe limitations are problematic
+- **Features**: CSP headers for additional protection
+- **Configuration**: Uses `cspDirectives` for Content Security Policy
+
+### What the Script Handles
+- Clears `public/external/` so stale assets do not linger between imports.
+- Copies the HTML file along with any relative `src`/`href` assets it references.
+- Updates `external.config.json`, which the React wrapper consumes at build time.
+- Prompts for security configuration based on chosen rendering mode.
+- Leaves absolute or CDN-linked resources untouched so they keep loading from the network.
+
+After integration the React app renders only the imported HTML bundle—no extra headers or chrome—so the legacy experience appears exactly as supplied.
+
+### `external.config.json` Reference
+```json
+{
+  "entryHtml": "index.html",
+  "iframeTitle": "Legacy Experience",
+  "initialHeight": 600,
+  "useIframe": true,
+  "allowList": ["allow-scripts", "allow-same-origin"],
+  "cspDirectives": {
+    "script-src": "'self'",
+    "style-src": "'self' 'unsafe-inline'",
+    "img-src": "'self' data:",
+    "default-src": "'self'"
+  }
+}
+```
+
+#### Configuration Options
+- **`entryHtml`**: File in `public/external/` to be rendered
+- **`iframeTitle`**: Accessibility label for the embedded content
+- **`initialHeight`**: Starting height in pixels (used for both modes)
+- **`useIframe`**: `true` for iframe mode (default), `false` for direct injection
+- **`allowList`**: *(Iframe mode only)* Sandbox tokens for the iframe (e.g., `allow-scripts`, `allow-same-origin`, `allow-forms`)
+- **`cspDirectives`**: *(Direct injection mode only)* Content Security Policy directives
+
+#### Common Sandbox Tokens
+- `allow-scripts`: Enable JavaScript execution
+- `allow-same-origin`: Allow access to same-origin resources
+- `allow-forms`: Enable form submission
+- `allow-popups`: Allow popups
+- `allow-modals`: Allow modal dialogs
+
+⚠️ **Security Note**: More permissive sandbox tokens or direct injection mode increase security risks. Only use when necessary and with trusted content.
+
+Manual tweaks to the JSON are respected without re-running the script. The React wrapper at `src/components/LegacyEmbed.tsx` handles both rendering modes. If you receive a new revision of the legacy HTML, rerun `npm run integrate` to replace the bundle and keep the config fresh.
 
 ## 🎯 YaleSites Integration
 
@@ -314,3 +420,14 @@ Before submitting, verify:
 - [Vite Documentation](https://vitejs.dev/)
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
+
+## 🤝 Contributing
+
+1. Follow the patterns established in this template
+2. Maintain WCAG 2.1 AA accessibility standards
+3. Test thoroughly before deployment
+4. Update documentation as needed
+
+---
+
+**Ready to build your YaleSites app? Start customizing!** 🎉
